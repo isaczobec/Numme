@@ -73,9 +73,10 @@ plot_circle(b(1),b(2),rb,100,'g'); hold on;
 plot_circle(c(1),c(2),rc,100,'b'); hold on;
 
 % läs av approximativa lösningar från bilden
-xcb = [1.23035,-3.17313,4.11404,0.054]';
+xcb = [1.3,-3.09,4,-0.15]';
 xab = [-0.9,2.5,3.5,1.6]';
 xac = [-1.9,1.9,-1.7,-2.2]';
+xcbrand = xcb + (randi(100,4,1) - 50)/50;
 
 % definiera unika F och DF för varje fall
 Fcb = @(x) F(x,rc,rb,c,b);
@@ -86,9 +87,29 @@ Fac = @(x) F(x,ra,rc,a,c);
 DFac = @(x) DF(x,a,c);
 
 % beräkna rötterna
-rcb = newton_multivariable(Fcb,DFcb,xcb,100,1,true,10e-11)
+% rcb = newton_multivariable(Fcb,DFcb,xcb,300,0.5,true,10e-11)
+
+% var helt oförmögen att få newtons metod att konvergera för denna rot,
+% så använde en egen goofy metod istället
+rcb = goofy_method(Fcb,xcb,0.5,0.5,100)
+
+% försök slumpa närliggande rötter för hitta 
+% en som konvergerar till rätt
+% lösning?
+%{
+for iters = 1:100000
+    rcb = newton_multivariable(Fcb,DFcb,xcbrand,1000,randi(1000,1,1)/1000,false,10e-11);
+    if norm(rcb-xcb) < 1
+        foundon = iters
+        break
+    end
+end
+%}
+
 rab = newton_multivariable(Fab,DFab,xab,300,0.2,false,10e-11)
 rac = newton_multivariable(Fac,DFac,xac,300,0.2,false,10e-11)
+
+
 
 % plotta linjerna
 figure(4)
