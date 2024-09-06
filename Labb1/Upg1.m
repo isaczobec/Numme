@@ -116,9 +116,24 @@ ne_mat = @(n) newt_error(n,d,ie);
 
 n_err_vals = ne_mat(nits);
 
-
+% plotta felen
+figure(1);
 semilogy(1:n,errs(1,1:end),'g'); 
 hold on; 
 semilogy(1:n,errs(2,1:end),'r');
 hold on; 
 semilogy(nits,n_err_vals,'b');
+
+%% d) ii
+% plotta konvergensen
+
+newt_xs = errs(1,1:end-1);
+newt_ys = errs(1,2:end);
+
+fip_xs = errs(2,1:end-1);
+fip_ys = errs(2,2:end);
+
+figure(2);
+loglog(newt_xs,newt_ys,'b.');
+hold on;
+loglog(fip_xs,fip_ys,'g.');
