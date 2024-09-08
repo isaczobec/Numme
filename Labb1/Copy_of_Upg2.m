@@ -43,7 +43,6 @@ plot([x02(1),x02(3)],[x02(2),x02(4)],'.');hold on;
 
 clc; close all;
 
-
 % definiera parametrar
 a = [-1,1.5]';
 b = [3,0.5]';
@@ -51,15 +50,6 @@ c = [0,-2]';
 ra = 1;
 rb = 1.2;
 rc = 1.7;
-
-%{
-a = very_wrong(1:2);
-b = very_wrong(3:4);
-c = very_wrong(5:6);
-ra = very_wrong(7);
-rb = very_wrong(8);
-rc = very_wrong(9);
-%}
 
 % definiera anonym funk för F och DF där x E R4; r1,r2 är cirklar 1&2:s
 % radie, p1,p2 deras mittpunkter
@@ -87,8 +77,9 @@ plot_circle(c(1),c(2),rc,100,'b'); hold on;
 xcb = [1.3,-3.09,4,-0.15]';
 xab = [-0.9,2.5,3.5,1.6]';
 xac = [-1.9,1.9,-1.7,-2.2]';
-xcb = xcb + 0.5;
 
+xcb = xcb + 0.5;
+xcbrand = xcb + (randi(100,4,1) - 50)/50;
 
 % definiera unika F och DF för varje fall
 Fcb = @(x) F(x,rc,rb,c,b);
@@ -98,13 +89,58 @@ DFab = @(x) DF(x,a,b);
 Fac = @(x) F(x,ra,rc,a,c);
 DFac = @(x) DF(x,a,c);
 
+
+% prova substituera för x1 och x2
+% definiera en funktion där r är cikrlens radie, a mittpunkt
+x_circ = @(r,a,x) a + r*[cos(x),sin(x)]';
+x_circ_deriv = @(r,x) r*[-sin(x),cos(x)]';
+% x E R2, fh är funktionshandle till substitutionen
+F_circp1p2 = @ (x,fh1,fh2,p1,p2) [...
+        (fh1(x(1)) - fh2(x(2)))' * (fh1(x(1))-p1)
+        (fh1(x(1)) - fh2(x(2)))' * (fh2(x(2))-p2)
+    ];
+
+DF_circp1p2 = @(x,fh1,fh2,dfh1,dfh2,p1,p2) [...
+    2 * dfh1(x(1))' * (fh1(x(1)) - p1), -dfh2(x(2))' * (fh1(x(1)) - p1);
+    dfh1(x(1))' * (fh2(x(2)) - p2), -2 * dfh2(x(2))' * (fh2(x(2)) - p2)
+];
+
+x_circ_c = @(x) x_circ(rc,c,x);
+x_circ_b = @(x) x_circ(rb,b,x);
+x_circ_c_deriv = @(x) x_circ_deriv(rc,x);
+x_circ_b_deriv = @(x) x_circ_deriv(rb,x);
+F_circ_cb = @(x) F_circp1p2(x,x_circ_c,x_circ_b,c,b);
+DF_circ_cb = @(x) DF_circp1p2(x,x_circ_c,x_circ_b,x_circ_c_deriv,x_circ_b_deriv,c,b);
+
+
 % beräkna rötterna
-% FIXA: newtons metod konvergerade inte mot denna rot, använde en annan
-% istället
-startc = goofy_method(Fcb,xcb,0.6,0.8,100);
-rcb = newton_multivariable(Fcb,DFcb,startc,300,0.5,true,10e-11,true) % denna gör inget rn
-rab = newton_multivariable(Fab,DFab,xab,300,0.2,false,10e-11,true)
-rac = newton_multivariable(Fac,DFac,xac,300,0.2,false,10e-11,true)
+% rcb = newton_multivariable(Fcb,DFcb,xcb,300,0.5,true,10e-11)
+
+% FIXA: newtons metod konvergerade inte mot denna rot
+startc = goofy_method(Fcb,xcb,0.6,0.8,100)
+rcb = newton_multivariable(Fcb,DFcb,startc,300,0.5,true,10e-11)
+
+% rcb = newton_multivariable(F_circ_cb,DF_circ_cb,[-0.5,-0.5]',13,0.1,true,10e-11)
+
+
+
+% rootb = newton_multivariable(Fcb,DFcb,rcb,1000,0.2,true,0);
+
+% försök slumpa närliggande rötter för hitta 
+% en som konvergerar till rätt
+% lösning?
+%{
+for iters = 1:100000
+    rcb = newton_multivariable(Fcb,DFcb,xcbrand,1000,randi(1000,1,1)/1000,false,10e-11);
+    if norm(rcb-xcb) < 1
+        foundon = iters
+        break
+    end
+end
+%}
+
+rab = newton_multivariable(Fab,DFab,xab,300,0.2,false,10e-11)
+rac = newton_multivariable(Fac,DFac,xac,300,0.2,false,10e-11)
 
 
 figure(4);
@@ -130,39 +166,4 @@ arc_a = ang(a,rac(1:2),rab(1:2)) * ra;
 arc_b = ang(b,rcb(3:4),rab(3:4)) * rb;
 arc_c = ang(c,rcb(1:2),rac(3:4)) * rc;
 
-snorelangd = norm(rac) + norm(rab) + norm(rcb) + arc_a + arc_b + arc_c
-
-
-%% d)
-close all;clc;
-
-% beräkna hur många olika kombinationer av att lägga till backward error
-% det finns (addera, subtrahera eller ingenting)
-
-def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF);
-def_input = [a;b;c;ra;rb;rc]; % skriv om inputen i en vektor
-
-num_states = 3^9 - 1; % 9 inputvariabler, inget fall där man har 0 överallt
-
-be = 0.1; % ange backward error
-load fe_vec_snorlangd.mat; % ladda felvektor
-start_index = find(fe_vec == 0,1,"first")
-start_index = 17698
-
-% beräkan ungefärlig exekveringstid
-tic;
-snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF);
-ex_time = toc*(num_states-start_index)
-
-
-% beräkna alla möjliga errors
-for i = start_index:num_states
-    fi = def_input + (num2base_list(i,3,9)-1)'*be;
-    fe_vec(i) = abs(def_len - snorlangd(fi(1:2),fi(3:4),fi(5:6),fi(7),fi(8),fi(9),xab,xac,xcb,F,DF));
-end
-
-save fe_vec_snorlangd.mat fe_vec; % spara vektorn
-
-% hitta maxvärdet
-[max_error,I] = max(fe_vec)
-
+snore = norm(rac) + norm(rab) + norm(rcb) + arc_a + arc_b + arc_c

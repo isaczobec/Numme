@@ -1,4 +1,4 @@
-function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error)
+function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error,print_iterations)
 arguments
     F;
     DF;
@@ -7,6 +7,7 @@ arguments
     step_length = 1;
     plot_fe=false;
     stop_error=0;
+    print_iterations=false;
 end
 % approximates a root vector r given an n-component vector-valued function
 % F, its jacobian DF, and an initial guess x0 (n-component vector) using iters iterations.
@@ -29,12 +30,15 @@ fe = zeros(1,iters);
 for i = 1:iters
     xprev = xi;
     %s = solve_linear_equation_matrix(DF(xi),F(xi)) * -1; % egen, nog sämre
-    s = -linsolve(DF(xi),F(xi)); % om man vill använda inbyggd ekvationslösning
+    s = -linsolve(DF(xi),F(xi)); % om man vill använda inbyggd ekvationslösnin
     xi = xi + s*step_length;
     fe(1,i) = norm(F(xi));
     if max(abs(xprev - xi)) < stop_error % antar att felet alltid minskar
-        i % print iterations taken
-        break
+        if print_iterations
+            i % print iterations taken
+        end
+        r = xi;
+        return
     end
 end
 
