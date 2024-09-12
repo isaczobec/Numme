@@ -137,3 +137,4 @@ figure(2);
 loglog(newt_xs,newt_ys,'b.');
 hold on;
 loglog(fip_xs,fip_ys,'g.');
+

@@ -1,5 +1,10 @@
-clearvars,clc
+clearvars;clc
 
-num2base_list(3,2,4)
+syms x y z
 
-num2cell(dec2base([3,3,3],2))
+f(x,y,z) = x^2 + y + z;
+
+gradient(f)
+g = ans'
+
+g(2,1,1)

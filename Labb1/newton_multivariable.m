@@ -1,4 +1,4 @@
-function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error,print_iterations)
+function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error,print_iterations,return_list)
 arguments
     F;
     DF;
@@ -8,13 +8,14 @@ arguments
     plot_fe=false;
     stop_error=0;
     print_iterations=false;
+    return_list = false;
 end
 % approximates a root vector r given an n-component vector-valued function
 % F, its jacobian DF, and an initial guess x0 (n-component vector) using iters iterations.
 % DF (E Rn*Rn) and F (E Rn) should be functions taking a vector with n components.
 %   Detailed explanation goes here
 
-
+n = length(F(x0));
 xi = x0;
 
 % transponera x0 om det behövs
@@ -24,10 +25,12 @@ end
 
 fe = zeros(1,iters);
 
+rs = zeros(n,iters);
 
 % använd formeln för newtons metod i flera variabler iters gånger
 % lös ut s istället för att beräkna inversen av DF
 for i = 1:iters
+    rs(1:n,i) = xi;
     xprev = xi;
     %s = solve_linear_equation_matrix(DF(xi),F(xi)) * -1; % egen, nog sämre
     s = -linsolve(DF(xi),F(xi)); % om man vill använda inbyggd ekvationslösnin
@@ -48,5 +51,7 @@ if (plot_fe)
 end
 
 r = xi;
-
+if (return_list)
+    r = rs;
+end
 end
