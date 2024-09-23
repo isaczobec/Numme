@@ -1,10 +1,5 @@
 clearvars;clc
 
-syms x y z
+F = @(x) [2*x(1),2*x(2)]';
 
-f(x,y,z) = x^2 + y + z;
-
-gradient(f)
-g = ans'
-
-g(2,1,1)
+root = gradient_descent([100,10]',F,0.1,100)

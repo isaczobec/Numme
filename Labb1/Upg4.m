@@ -61,78 +61,41 @@ close all;clc;
 
 load 'dollarkurs.mat'
 n = length(USDSEK);
-% USDSEK = flipud(USDSEK);
 
-plot(1:n,USDSEK')
+% t och U är liggande vektorer med tid respektive dollarvärden
+% g är funktionen som vi vill anpassa till, r är en stående vektor med alla
+% ekvationer som ges av datapunkterna
+g = @(t,U,d0,d1,d2,d3,L) d0 + d1*t + d2*sin(2*pi*t/L) + d3*cos(2*pi*t/L) - U;
+r = @(d0,d1,d2,d3,L) g(1:n,USDSEK',d0,d1,d2,d3,L)';
+% g_grad är gradienten av g m.a.p d0,..d3,L, där derivatorna extendas ut åt
+% höger och varje ekvation neråt
+g_grad = @(t,U,d0,d1,d2,d3,L) [ones(length(t),1),    t,  sin(2*pi*t/L),  cos(2*pi*t/L),...
+    (1/L^2)*(-2*pi*d2*t).*cos(2*pi*t/L) + (1/L^2)*(2*pi*d3*t).*sin(2*pi*t/L)];
+Dr = @(d0,d1,d2,d3,L) g_grad((1:n)',USDSEK,d0,d1,d2,d3,L);
 
+% definiera F och DF enligt Gauss-Newtons metod
+% gör så att de tar vektor som input för att kunna använda dem med newtons
+% metod
+F = @(x) (r(x(1),x(2),x(3),x(4),x(5))' * Dr(x(1),x(2),x(3),x(4),x(5)))'; % transponera F för att kunna lösa m Newtons metod
+DF = @(x) Dr(x(1),x(2),x(3),x(4),x(5))' * Dr(x(1),x(2),x(3),x(4),x(5)); % droppa summationen
 
-% definiera funktionerna
-syms t d0 d1 d2 d3 L
-f(t,d0,d1,d2,d3,L) = d0 + d1*t + d2 * sin(2*pi*t/L) + d3 * cos(2*pi*t/L);
-% partiella förstaderivator
-dfdd0(t,d0,d1,d2,d3,L) = 1 + 0*t;
-dfdd1(t,d0,d1,d2,d3,L) = t;
-dfdd2(t,d0,d1,d2,d3,L) = sin(2*pi*t/L);
-dfdd3(t,d0,d1,d2,d3,L) = cos(2*pi*t/L);
-dfdL(t,d0,d1,d2,d3,L) = d2*(cos(2*pi*t/L))*-2*pi*t*(L^(-2)) + d3*-1*(sin(2*pi*t/L))*-2*pi*t*(L^(-2));
+% startgissning för d0,d1,d2,d3,L
+start_guess = [8,-0.0017,0.2802,0.384,600]';
 
-ds = {dfdd0,dfdd1,dfdd2,dfdd3,dfdL};
-am_vars = length(ds);
+root = newton_multivariable(F,DF,start_guess,100,1,true,0,false,false)
+% root_grad_desc = gradient_descent(start_guess,F,0.001,100)
 
-% kod utkommenterad eftersom tar lång tid, laddar in funktioner senare
-%{
-% definiera r, stoppa in alla datapunkter
-r = sym('r',[n,1]);
-for i = 1:n
-    r(i) = subs(f(t,d0,d1,d2,d3,L),t,i) - USDSEK(i);
-end
+err_squared = @(root) sum(r(root(1),root(2),root(3),root(4),root(5)).^2);
 
-Dr = sym('Dr',[n,am_vars]);
-for i = 1:n
-    for j = 1:am_vars
-        Dr(i,j) = subs(ds{j},t,i);
-    end
-end
-
-% definiera gradient av error-squared funktionen
-E_grad = (r'*Dr)';
+err_gauss_newton = err_squared(root)
+err_guess = err_squared(start_guess)
 
 
-% beräkna automatiskt ut Jacobianen
-DE_grad = sym('DED',[am_vars,am_vars]);
-for i = 1:am_vars
-    DE_grad(i,1:am_vars) = gradient(E_grad(i))';
-end
-
-% skapa matlabfunktioner som kan evalueras
-F = matlabFunction(E_grad);
-DF = matlabFunction(DE_grad);
-
-% spara funktioner
-save('upg4_funcs.mat',"r","Dr","E_grad","DE_grad");
-save('upg4_anon_funcs.mat',"F","DF");
-
-%}
-%load upg4_anon_funcs.mat; % ladda in funktioner
-
-% definiera funktionen och dess jacobian som att ta en vektor som input
-vF = @(x) F(x(1),x(2),x(3),x(4),x(5));
-vDF = @(x) DF(x(1),x(2),x(3),x(4),x(5));
-
-iters = 15;
-x0 = [7.9678,-0.0017,0.2802,0.3840,500]' % börja med approximationer från förra uppgiften
-roots = newton_multivariable(vF,vDF,x0,iters,0.4,true,0,false,true)
-
-% plotta fel 
-figure(4);
-plot(1:n,USDSEK);hold on;
-
-anp_f_3 = @(t,cs) cs(1) + cs(2)*t + cs(3) * sin(2*pi*t/cs(5)) + cs(4) * cos(2*pi*t/cs(5))
-for i = 1:iters
-    anp = @(t) anp_f_3(t,roots(1:length(x0),i));
-    ys = anp(1:n);
-    mse = sum((USDSEK' - ys).^2)/n
-    plot(1:n,ys);hold on;
-end
-
-vF(roots(1:5,15))
+% plota funktionerna
+% definiera handle för funktionen vi anpassar till
+f = @(t,d0,d1,d2,d3,L) d0 + d1*t + d2*sin(2*pi*t/L) + d3*cos(2*pi*t/L);
+figure(2);
+hold on;
+plot(1:n,USDSEK','b');
+plot(1:n,f(1:n,start_guess(1),start_guess(2),start_guess(3),start_guess(4),start_guess(5)),'r');
+plot(1:n,f(1:n,root(1),root(2),root(3),root(4),root(5)),'g');

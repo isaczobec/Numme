@@ -38,7 +38,7 @@ for i = 1:iters
     fe(1,i) = norm(F(xi));
     if max(abs(xprev - xi)) < stop_error % antar att felet alltid minskar
         if print_iterations
-            i % print iterations taken
+            disp(['iterations taken to reach desired error: ',i]) % print iterations taken
         end
         r = xi;
         return

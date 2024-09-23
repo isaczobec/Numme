@@ -123,7 +123,7 @@ plot(xab([1,3]),xab([2,4]),'.'); hold on;
 plot(xac([1,3]),xac([2,4]),'.'); hold on;
 
 % beräkna snörets längd
-
+% funktion för beräkna vinkeln, uttnyttjar |a*b| = abcos(theta)
 ang = @(midpoint,a,b) acos(((a-midpoint)'*(b-midpoint))/(norm(a-midpoint)*norm(b-midpoint)));
 
 arc_a = ang(a,rac(1:2),rab(1:2)) * ra;
