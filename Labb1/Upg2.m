@@ -24,19 +24,33 @@ DF = @(x) [2*(x(1)-a(1)), 2*(x(2)-a(2)), 0, 0;...
 % sätt startgissning och lös m newtons metod
 x01 = [-1,4,1.5,1.5]';
 x02 = [-2.4,2,0.5,0.3]';
+x03 = [-0.1,2.8,0.2,1.03]';
+x04 = [-1.3,1.5,0.9,1.8]';
+step_lens = [0.6,0.6,0.2,0.6];
+start_guesses = [x01,x02,x03,x04]; % matris med startgissningar
 % i = antal iterationer som krävdes
-ans1 = newton_multivariable(F,DF,x01,300,0.6,false,10e-11)
-ans2 = newton_multivariable(F,DF,x02,300,1,false,10e-11)
+root_mat = zeros(height(start_guesses),width(start_guesses));
+for i = 1:width(start_guesses)
+    root_mat(1:end,i) = newton_multivariable(F,DF,start_guesses(1:end,i),500,step_lens(i),false,10e-11);
+end
+root_mat % skriv ut rötter
 
 %% b) plotta figuren
 
 figure(3)
-plot_circle(a(1),a(2),ra,100);hold on;
-plot_circle(b(1),b(2),rb,100);hold on;
-plot([ans1(1),ans1(3)],[ans1(2),ans1(4)]);hold on;
-plot([x01(1),x01(3)],[x01(2),x01(4)],'.');hold on;
-plot([ans2(1),ans2(3)],[ans2(2),ans2(4)]);hold on;
-plot([x02(1),x02(3)],[x02(2),x02(4)],'.');hold on;
+hold on;
+title('Snöre och cirkel')
+% plotta cirklar
+plot_circle(a(1),a(2),ra,100);
+plot_circle(b(1),b(2),rb,100);
+% plotta snören
+for i = 1:width(root_mat)
+    plot([root_mat(1,i),root_mat(3,i)],[root_mat(2,i),root_mat(4,i)])
+end
+% plotta startgissningar
+for i = 1:width(root_mat)
+    plot([start_guesses(1,i),start_guesses(3,i)],[start_guesses(2,i),start_guesses(4,i)],'o')
+end
 
 
 %% c)
@@ -51,15 +65,6 @@ c = [0,-2]';
 ra = 1;
 rb = 1.2;
 rc = 1.7;
-
-%{
-a = very_wrong(1:2);
-b = very_wrong(3:4);
-c = very_wrong(5:6);
-ra = very_wrong(7);
-rb = very_wrong(8);
-rc = very_wrong(9);
-%}
 
 % definiera anonym funk för F och DF där x E R4; r1,r2 är cirklar 1&2:s
 % radie, p1,p2 deras mittpunkter
@@ -91,18 +96,15 @@ xcb = xcb + 0.5;
 
 
 % definiera unika F och DF för varje fall
-Fcb = @(x) F(x,rc,rb,c,b);
-DFcb = @(x) DF(x,c,b);
+Fcb = @(x) F(x,rb,rc,b,c);
+DFcb = @(x) DF(x,b,c);
 Fab = @(x) F(x,ra,rb,a,b);
 DFab = @(x) DF(x,a,b);
 Fac = @(x) F(x,ra,rc,a,c);
 DFac = @(x) DF(x,a,c);
 
 % beräkna rötterna
-% FIXA: newtons metod konvergerade inte mot denna rot, använde en annan
-% istället
-startc = goofy_method(Fcb,xcb,0.6,0.8,100);
-rcb = newton_multivariable(Fcb,DFcb,startc,300,0.5,true,10e-11,true) % denna gör inget rn
+rbc = newton_multivariable(Fcb,DFcb,xcb,300,0.5,true,10e-11,true) 
 rab = newton_multivariable(Fab,DFab,xab,300,0.2,false,10e-11,true)
 rac = newton_multivariable(Fac,DFac,xac,300,0.2,false,10e-11,true)
 
@@ -110,7 +112,8 @@ rac = newton_multivariable(Fac,DFac,xac,300,0.2,false,10e-11,true)
 figure(4);
 % plotta linjerna
 
-plot(rcb([1,3]),rcb([2,4])); hold on;
+
+plot(rbc([1,3]),rbc([2,4])); hold on;
 %point1 = x_circ_c(rcb(1))'
 %point2 = x_circ_b(rcb(2))'
 %plot([point1(1),point2(1)],[point1(2),point2(2)]); hold on;
@@ -127,10 +130,10 @@ plot(xac([1,3]),xac([2,4]),'.'); hold on;
 ang = @(midpoint,a,b) acos(((a-midpoint)'*(b-midpoint))/(norm(a-midpoint)*norm(b-midpoint)));
 
 arc_a = ang(a,rac(1:2),rab(1:2)) * ra;
-arc_b = ang(b,rcb(3:4),rab(3:4)) * rb;
-arc_c = ang(c,rcb(1:2),rac(3:4)) * rc;
+arc_b = ang(b,rbc(1:2),rab(3:4)) * rb;
+arc_c = ang(c,rbc(3:4),rac(3:4)) * rc;
 
-snorelangd = norm(rac) + norm(rab) + norm(rcb) + arc_a + arc_b + arc_c
+snorelangd = norm(rac(1:2)-rac(3:4)) + norm(rab(1:2)-rab(3:4)) + norm(rbc(1:2)-rbc(3:4)) + arc_a + arc_b + arc_c
 
 
 %% d)
@@ -139,30 +142,34 @@ close all;clc;
 % beräkna hur många olika kombinationer av att lägga till backward error
 % det finns (addera, subtrahera eller ingenting)
 
-def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF);
+def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF)
 def_input = [a;b;c;ra;rb;rc]; % skriv om inputen i en vektor
 
-num_states = 3^9 - 1; % 9 inputvariabler, inget fall där man har 0 överallt
+% ta varje variabel kan va 0 eller +0.01
+num_states = 2^9 - 1; % 9 inputvariabler, inget fall där man har 0 överallt
 
-be = 0.1; % ange backward error
-load fe_vec_snorlangd.mat; % ladda felvektor
-start_index = find(fe_vec == 0,1,"first")
-start_index = 17698
+be = 0.01; % ange backward error
 
 % beräkan ungefärlig exekveringstid
 tic;
+test_tries = 20;
+for i = 1:test_tries
 snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF);
-ex_time = toc*(num_states-start_index)
+end
+ex_time = toc*(num_states)/test_tries
+
+fe_vec = zeros(1,num_states);
 
 
 % beräkna alla möjliga errors
-for i = start_index:num_states
-    fi = def_input + (num2base_list(i,3,9)-1)'*be;
+for i = 1:num_states
+    fi = def_input + (num2base_list(i,3,9))'*-be; % num2base-listan kan vara 0 eller 1
     fe_vec(i) = abs(def_len - snorlangd(fi(1:2),fi(3:4),fi(5:6),fi(7),fi(8),fi(9),xab,xac,xcb,F,DF));
 end
 
-save fe_vec_snorlangd.mat fe_vec; % spara vektorn
+
 
 % hitta maxvärdet
 [max_error,I] = max(fe_vec)
-
+% när bara positiva bakcwarderrors: ca 0.09
+% när bara positiva backwaarderrors: ca 0.13

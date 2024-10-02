@@ -19,8 +19,10 @@ ys1 = ys(1:end-1);
 ys2 = ys(2:end);
 signs = ys1.*ys2;
 rootindicies = find(signs < 0);
+% hitta start- och slutinterval [a,b]
 as = xs(1,rootindicies);
 bs = xs(rootindicies+1);
+% hitta mittpunkter och max errors, är halva intervallet
 midpoints = (as + bs)/2;
 maxerrors = abs(as-bs)/2;
 
@@ -52,15 +54,26 @@ roots = zeros(1,length(approx_roots)); % pre-allocate array med rötter
 % beräkna hur många iterationer som behövs för att (ungefär) få ett 
 % fel < 10^-10 (ta med de som inte konvergerar för empiriska syften)
 ns = ceil(abs((ones(1,length(maxerrors)) * log10(10^-10) - log10(maxerrors))./log10(abs(derivatives))));
-ns = ns + 20 % lägg till godtycklig mängd iterationer för att vara på säkra sidan
+ns = ns + 50 % lägg till godtycklig mängd iterationer för att vara på säkra sidan
    
 
 for i = 1:length(approx_roots)
-    roots(1,i) = fpi_method(g,approx_roots(1,i),ns(1,i));
+    roots(1,i) = fpi_method(g,approx_roots(1,i),ns(1,i),10e-11); % stopping criteria 10 gånger mindre för säkerhets skull
 end
 
-r1s = roots;
+
+% kolla vilka startgissningar som kunde hittas med metoden
+start_guess_tolerance = 0.1;
+root_start_guess_difference = abs(approx_roots-roots);
+could_be_found_vec = root_start_guess_difference < start_guess_tolerance;
+found_indexes = find(could_be_found_vec);
+found_roots = roots(found_indexes);
+disp(['Hittade följande rötter: ',num2str(found_roots)])
+
 roots
+
+r1s = roots;
+
 
 %% c)
 
@@ -72,12 +85,12 @@ approx_roots = midpoints
 initial_errors = maxerrors;
 desired_errors = ones(1,length(approx_roots)) * 10^-15; % -15 pga nästa deluppgift
 err_mult = abs(d2fdx2(approx_roots)/ (2 * dfdx(approx_roots))); %% anta att derivatorna genom processen liknar de initiella värdena
-ns = ceil(log2(log10(desired_errors) ./ (log10(err_mult) + 2*log10(initial_errors))) + 2);
-ns = ns+1 % extra iteration för kompensera för approximeringen av antal iterationer krävda
+ns = ceil(log2(log10(desired_errors) ./ (log10(err_mult) + 2*log10(initial_errors))) + 2); % beräkna antalet iterationer som krävs för varje rot
+ns = ns+3 % extra iteration för kompensera för approximeringen av antal iterationer krävda
 
 required_iterations = max(ns); % värden liknar varandra, välj max för simplifiera resten
 
-roots = newtons_method(f,midpoints,required_iterations,dfdx)
+roots = newtons_method(f,midpoints,required_iterations+1000,dfdx)
 
 
 %% d) i
@@ -93,6 +106,7 @@ n = 100;
 
 errs = zeros(2,n);
 
+% iterera n gånger och kom ihåg felet
 for i = 1:n
 
     % record errors

@@ -11,7 +11,7 @@ test_force = zeros(2*n,1);
 test_force(1) = 100;
 
 % lös ekvationssystemet, bel blir förskjutningar (x1,y1,x2,y2)
-bel = A\test_force;
+bel = A\test_force; 
 
 % addera förskjutningarna till positionerna
 bel_x_nod = xnod + bel(1:2:end);
@@ -113,32 +113,31 @@ for i = 1:len_mats
     times(i,1) = toc;
     %}
 
+
+
     % lös LU
-    % -------
     tic;
-    B = zeros(2*n,n);
-    
-    % definiera alla förskjutningsvektorer som kolonvektorer i en matris
+    % definiera vektorer
+    forskjutningar = zeros(1,n);
+    % LU-faktorisera 
+    [LA,UA] = lu(A);
     for j = 1:n
-        B(j*2,j) = -1;
+        bel = zeros(2*n,1);
+        bel(j*2) = -1;
+        btilde = LA\bel;
+        x = UA\btilde;
+        forskjutningar(j) = norm(x);
+        % uppdatera max
+        
     end
-    
-    % lös ekvationssystemet
-    X = A\B;
-
-    % dela upp i kolonnvektorer och hitta 
-    colvectors = num2cell(X',2);
-    norms = zeros(1,n);
-    for j = 1:n
-        norms(j) = norm(colvectors{j});
-    end
-    [M,I] = max(norms)
-
+    m = max(forskjutningar)
     times(i,2) = toc;
+
+
+
 
     % lös Sparse
     % -------
-
     tic;
     As = sparse(A);
     % definiera vektorer
@@ -155,28 +154,27 @@ for i = 1:len_mats
     times(i,3) = toc;
 
 
+
+
     % lös Sparse LU
     % -------
     tic;
-    As = sparse(A);
+    [LA,UA] = lu(A);
+    LAs = sparse(LA);
+    UAs = sparse(UA);
     B = zeros(2*n,n);
     
-    % definiera alla förskjutningsvektorer som kolonvektorer i en matris
+    forskjutningar = zeros(1,n);
     for j = 1:n
-        B(j*2,j) = -1;
+        bel = zeros(2*n,1);
+        bel(j*2) = -1;
+        btilde = LAs\bel;
+        x = UAs\btilde;
+        forskjutningar(j) = norm(x);
+        % uppdatera max
+        
     end
-    
-    % lös ekvationssystemet
-    X = As\B;
-
-    % dela upp i kolonnvektorer och hitta 
-    colvectors = num2cell(X',2);
-    norms = zeros(1,n);
-    for j = 1:n
-        norms(j) = norm(colvectors{j});
-    end
-    [M,I] = max(norms)
-
+    m = max(forskjutningar)
     times(i,4) = toc;
     
     save ex_times.mat times % spara efter varje storlek för att sava gjort arbete

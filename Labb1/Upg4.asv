@@ -71,7 +71,7 @@ r = @(d0,d1,d2,d3,L) g(day',USDSEK',d0,d1,d2,d3,L)';
 % höger och varje ekvation neråt
 g_grad = @(t,U,d0,d1,d2,d3,L) [ones(length(t),1),    t,  sin(2*pi*t/L),  cos(2*pi*t/L),...
     (1/L^2)*(-2*pi*d2*t).*cos(2*pi*t/L) + (1/L^2)*(2*pi*d3*t).*sin(2*pi*t/L)];
-Dr = @(d0,d1,d2,d3,L) g_grad(day,USDSEK,d0,d1,d2,d3,L);
+Dr = @(d0,d1,d2,d3,L) g_grad(()',USDSEK,d0,d1,d2,d3,L);
 
 % definiera F och DF enligt Gauss-Newtons metod
 % gör så att de tar vektor som input för att kunna använda dem med newtons
@@ -80,7 +80,7 @@ F = @(x) (r(x(1),x(2),x(3),x(4),x(5))' * Dr(x(1),x(2),x(3),x(4),x(5)))'; % trans
 DF = @(x) Dr(x(1),x(2),x(3),x(4),x(5))' * Dr(x(1),x(2),x(3),x(4),x(5)); % droppa summationen
 
 % startgissning för d0,d1,d2,d3,L
-start_guess = [8.5954,0.0012,0.1894,0.8652,1000]';
+start_guess = [8,-0.0017,0.2802,0.384,600]';
 
 root = newton_multivariable(F,DF,start_guess,100,1,true,0,false,false)
 % root_grad_desc = gradient_descent(start_guess,F,0.001,100)
@@ -96,6 +96,6 @@ err_guess = err_squared(start_guess)
 f = @(t,d0,d1,d2,d3,L) d0 + d1*t + d2*sin(2*pi*t/L) + d3*cos(2*pi*t/L);
 figure(2);
 hold on;
-plot(day',USDSEK','b');
-plot(day',f(day',start_guess(1),start_guess(2),start_guess(3),start_guess(4),start_guess(5)),'r');
-plot(day',f(day',root(1),root(2),root(3),root(4),root(5)),'g');
+plot(1:n,USDSEK','b');
+plot(1:n,f(1:n,start_guess(1),start_guess(2),start_guess(3),start_guess(4),start_guess(5)),'r');
+plot(1:n,f(1:n,root(1),root(2),root(3),root(4),root(5)),'g');

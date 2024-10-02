@@ -1,4 +1,4 @@
-function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error,print_iterations,return_list)
+function r = newton_multivariable(F,DF,x0,iters,step_length,plot_fe,stop_error_difference,print_iterations,return_list)
 arguments
     F;
     DF;
@@ -6,7 +6,7 @@ arguments
     iters;
     step_length = 1;
     plot_fe=false;
-    stop_error=0;
+    stop_error_difference=0;
     print_iterations=false;
     return_list = false;
 end
@@ -36,9 +36,9 @@ for i = 1:iters
     s = -linsolve(DF(xi),F(xi)); % om man vill använda inbyggd ekvationslösnin
     xi = xi + s*step_length;
     fe(1,i) = norm(F(xi));
-    if max(abs(xprev - xi)) < stop_error % antar att felet alltid minskar
+    if max(abs(xprev - xi)) < stop_error_difference % antar att felet alltid minskar
         if print_iterations
-            disp(['iterations taken to reach desired error: ',i]) % print iterations taken
+            disp(['iterations taken to reach desired error: ',string(i)]) % print iterations taken
         end
         r = xi;
         return
