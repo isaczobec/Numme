@@ -1,11 +1,11 @@
 clearvars, clc, close all
 
-f = @(x,n) (-2 ./n).*sin(n.*x);
+f = @(x,n) (-1 ./((n+2).^2)-1).*cos(n.*x);
 
 
 fourier_f = infinite_sum_function(f,3);
 
-am_sums = [2,4,8,16,32,64];
+am_sums = [64,12];
 n_sums = length(am_sums);
 funcs = cell(1,n_sums);
 

@@ -146,9 +146,13 @@ def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF)
 def_input = [a;b;c;ra;rb;rc]; % skriv om inputen i en vektor
 
 % ta varje variabel kan va 0 eller +0.01
-num_states = 2^9 - 1; % 9 inputvariabler, inget fall där man har 0 överallt
+num_states = 3^9 - 1; % 9 inputvariabler, inget fall där man har 0 överallt
 
 be = 0.01; % ange backward error
+
+load new_err_vec.mat
+
+start_index = 16370;
 
 % beräkan ungefärlig exekveringstid
 tic;
@@ -156,20 +160,64 @@ test_tries = 20;
 for i = 1:test_tries
 snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF);
 end
-ex_time = toc*(num_states)/test_tries
+ex_time = toc*(num_states-start_index)/test_tries/60
 
-fe_vec = zeros(1,num_states);
+% fe_vec = zeros(1,num_states);
 
 
 % beräkna alla möjliga errors
-for i = 1:num_states
-    fi = def_input + (num2base_list(i,3,9))'*-be; % num2base-listan kan vara 0 eller 1
+for i = start_index:num_states
+    fi = def_input + (num2base_list(i,3,9)-1)'*be; % num2base-listan kan vara 0, 1 eller 2
     fe_vec(i) = abs(def_len - snorlangd(fi(1:2),fi(3:4),fi(5:6),fi(7),fi(8),fi(9),xab,xac,xcb,F,DF));
 end
 
 
+save new_err_vec.mat fe_vec
 
 % hitta maxvärdet
 [max_error,I] = max(fe_vec)
+
+% för alla 3^9-1 möjliga fall : max_error 0.1306 index 6344
+
 % när bara positiva bakcwarderrors: ca 0.09
 % när bara positiva backwaarderrors: ca 0.13
+
+%% d) test case
+
+max_index = 6344;
+be = 0.01; % ange backward error
+
+def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF)
+def_input = [a;b;c;ra;rb;rc]; % skriv om inputen i en vektor
+
+bast_storning = (num2base_list(max_index,3,9)-1)
+
+fi = def_input + bast_storning'*be; 
+error_maxad_sigma_rizz = abs(def_len - snorlangd(fi(1:2),fi(3:4),fi(5:6),fi(7),fi(8),fi(9),xab,xac,xcb,F,DF))
+
+
+%% d) mer realistisk
+
+clc
+
+def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF)
+def_input = [a;b;c;ra;rb;rc]; % skriv om inputen i en vektor
+
+be = 0.01; % ange backward error
+
+n_dist = 100;
+n_inp = length(def_input);
+
+% räkna ut matris med störningar
+dist_mat = (randi(3,n_inp,n_dist)-2)*be;
+
+fe_vec_new = zeros(1,n_dist);
+
+% beräkna några olika fel utifrån disturbance-matrisen
+for i = 1:n_dist
+    fi = def_input + dist_mat(1:end,i);
+    fe_vec_new(i) = abs(def_len - snorlangd(fi(1:2),fi(3:4),fi(5:6),fi(7),fi(8),fi(9),xab,xac,xcb,F,DF));
+end
+
+% hitta största felet
+m_err = max(fe_vec_new)

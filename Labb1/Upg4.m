@@ -99,3 +99,5 @@ hold on;
 plot(day',USDSEK','b');
 plot(day',f(day',start_guess(1),start_guess(2),start_guess(3),start_guess(4),start_guess(5)),'r');
 plot(day',f(day',root(1),root(2),root(3),root(4),root(5)),'g');
+title('Gauss-Newton Anpassad Kurs')
+legend('Kurs','Ursprunglig','Anpassad')
