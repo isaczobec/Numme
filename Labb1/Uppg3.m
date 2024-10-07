@@ -27,6 +27,7 @@ plot(bel_x_nod(1),bel_y_nod(1),'.'); hold on;
 filenames = {'eiffel1.mat','eiffel2.mat','eiffel3.mat','eiffel4.mat'};
 len_mats = length(filenames);
 antal_hl = 2;
+node_amounts = zeros(1,len_mats);
 
 % preallocata times
 times = zeros(1,len_mats);
@@ -34,6 +35,7 @@ amount_iterations = 20;
 
 for i = 1:len_mats
     load(filenames{i});
+    node_amounts(i) = height(A)/2; % spara node amounts
     n = length(A)/2;
     b = randn(2*n,antal_hl);
 
@@ -48,7 +50,7 @@ end
 
 times = times / amount_iterations;
 
-semilogy(1:len_mats,times);
+loglog(node_amounts,times);
 
 %% c)
 clc; close all;
