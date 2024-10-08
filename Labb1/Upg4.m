@@ -69,7 +69,7 @@ g = @(t,U,d0,d1,d2,d3,L) d0 + d1*t + d2*sin(2*pi*t/L) + d3*cos(2*pi*t/L) - U;
 r = @(d0,d1,d2,d3,L) g(day',USDSEK',d0,d1,d2,d3,L)';
 % g_grad är gradienten av g m.a.p d0,..d3,L, där derivatorna extendas ut åt
 % höger och varje ekvation neråt
-g_grad = @(t,U,d0,d1,d2,d3,L) [ones(length(t),1),    t,  sin(2*pi*t/L),  cos(2*pi*t/L),...
+g_grad = @(t,U,d0,d1,d2,d3,L) [ones(length(t),1),  t,  sin(2*pi*t/L),  cos(2*pi*t/L),...
     (1/L^2)*(-2*pi*d2*t).*cos(2*pi*t/L) + (1/L^2)*(2*pi*d3*t).*sin(2*pi*t/L)];
 Dr = @(d0,d1,d2,d3,L) g_grad(day,USDSEK,d0,d1,d2,d3,L);
 
