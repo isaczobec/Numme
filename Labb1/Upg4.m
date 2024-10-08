@@ -24,7 +24,7 @@ figure(1);
 plot(day',USDSEK');hold on;
 plot([1,day(end)],[lin_f(1),lin_f(day(end))]);hold on;
 
-err_vec = (lin_f(1:n) - USDSEK').^2;
+err_vec = (lin_f(day') - USDSEK').^2;
 mes = sum(err_vec)/n
 
 
