@@ -183,7 +183,7 @@ save new_err_vec.mat fe_vec
 
 %% d) test case
 
-max_index = 6344;
+max_index = 6344; % det indexet som gav max av alla möjliga fall
 be = 0.01; % ange backward error
 
 def_len = snorlangd(a,b,c,ra,rb,rc,xab,xac,xcb,F,DF)

@@ -1,0 +1,16 @@
+Revert "fix wrong mse in 4a"
+
+This reverts commit c51e1a3779dbb4874eebcabb350197c05f050534.c51e1a3
+
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	modified:   Labb1/Upg4.m
+#	modified:   randomScripts/gogoby.m
+#	deleted:    randomScripts/polynomial_interpolation.m
+#
+# Changes not staged for commit:
+#	modified:   Labb1/Upg2.m
+#	modified:   Labb1/snorlangd.m
+#
