@@ -4,7 +4,7 @@ num_samples = 100000;
 
 % variables
 max_bets = 1000;
-chance_win = 0.5;
+chance_win = 0.45;
 win_money_multiplier = 2;
 start_money = 1000;
 start_bet = 100;
@@ -15,7 +15,7 @@ current_bet = ones(1,num_samples) * start_bet;
 
 for i = 1:max_bets
     rand_vals = rand(1,num_samples);
-    win_vec = (rand_vals >= chance_win);
+    win_vec = (rand_vals <= chance_win);
     money_delta_vec = win_vec * 2 -1; % -1 if you lost, 1 if you won 
     money_vec = money_vec + money_delta_vec.*current_bet; % change money
     
