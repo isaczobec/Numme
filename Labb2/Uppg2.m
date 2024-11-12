@@ -66,7 +66,7 @@ disp(['RK4 : took h = ',num2str(5/steps),' to reach error of ',num2str(des_err_R
 
 % beräkna precis referenslösning med h:et som krävdes för 10e-6 från förra
 % sektionen ()
-RK4_vals = RK4_system(dydt,[O0;0],0,5/1310720,1310720);
+RK4_vals = RK4_system(dydt,[O0;0],0,5/(1310720),1310720);
 ans_at_5 = RK4_vals(2,end);
 
 n = 17;

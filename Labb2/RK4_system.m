@@ -26,11 +26,11 @@ for i = 1:steps
 
     % calculate slopes and average them
     k(1:end,1) = dydt(ti,yi);
-    k(1:end,2) = dydt(ti + h/2,yi + h/2.*k(1:end,1)) * 2;
-    k(1:end,3) = dydt(ti + h/2,yi + h/2.*k(1:end,2)) * 2;
+    k(1:end,2) = dydt(ti + h/2,yi + h/2.*k(1:end,1));
+    k(1:end,3) = dydt(ti + h/2,yi + h/2.*k(1:end,2));
     k(1:end,4) = dydt(ti + h, yi + h.*k(1:end,3));
 
-    slope = sum(k')'/6;
+    slope = (k(1:end,1) + k(1:end,2) * 2 + k(1:end,3) * 2  + k(1:end,4))/6;
 
     % increment yn and tn
     yi = yi + slope * h;

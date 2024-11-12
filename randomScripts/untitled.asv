@@ -1,7 +1,0 @@
-clearvars, clc;
-
-over = @(n,k) factorial(n) ./ (factorial(k).*factorial(n-k));
-
-
-
-sugma = @(x) 1/(sqrt(2*pi))

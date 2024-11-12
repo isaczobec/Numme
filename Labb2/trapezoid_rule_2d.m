@@ -1,4 +1,4 @@
-function I = trapezoid_rule_2d(f,ax,bx,ay,by,m,n)
+    function I = trapezoid_rule_2d(f,ax,bx,ay,by,m,n)
 % m steps in x direction, n steps in y direction
 
 hx = (bx - ax)/m;
