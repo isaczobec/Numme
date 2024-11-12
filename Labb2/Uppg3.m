@@ -71,7 +71,7 @@ end
 % bestäm det svar som hade 5 korrekta decimaler
 errs = abs(ans_3(1,1:end-1)-ans_3(1,2:end));
 index_precise_ans = find(errs < 0.5 * 10e-5,1,"first") + 1;
-precise_ans = ans_3(index_precise_ans) % 833.134395308635
+precise_ans = ans_3(index_precise_ans+3) % lägg till några iterationer för säkerhets skull, 833.134382316262
 
 % bestäm noggranhetsordning
 lower = ans_3(1,1:end-2);
