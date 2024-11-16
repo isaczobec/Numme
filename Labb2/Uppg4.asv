@@ -14,8 +14,8 @@ m = 0.75;
 f = @(t,y) [...
     y(3);...
     y(4);...
-    -(k1*y(3))*sqrt(y(4).^2+y(3).^2)/m;...
-    -(k2*y(4))*sqrt(y(4).^2+y(3).^2)/m - g;
+    -(k1*y(3)+k2*y(4))*abs(y(3))/m;...
+    -(k1*y(3)+k2*y(4))*sqrt(y(4).^2+y(3).^2)/m - g;
     ];
 
 % beräkna y0:
@@ -74,7 +74,7 @@ figure(1);
 title(1,'Trajectory over time')
 hold on;
 plot(trajectory(2,1:end),trajectory(3,1:end));
-plot([0,25],[0,0]);
+plot([0,20],[0,0]);
 plot(linspace(trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),100),...
     spline_func(linspace(trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),100)))
 legend('Trajectory','Ground','cubic interpolation')
@@ -96,8 +96,8 @@ ans_mat = zeros(h_steps,tol_steps);
 for hi = 1:h_steps
 for ti = 1:tol_steps
 
-    a0 = pi/4; % i förra uppgiften givna startvinkel, gav x =~ 23
-    a1 = pi/4*0.9; % gissa lite annan vinkel
+    a0 = pi/4; % i förra uppgiften givna startvinkel, gav x =~ 18
+    a1 = pi/4*0.95; % gissa lite annan vinkel
     [t,x0] = trajectory_calculation(0.02,150,f,[0;h0;cos(a0)*v0;sin(a0)*v0]);
     [t,x1] = trajectory_calculation(0.02,150,f,[0;h0;cos(a1)*v0;sin(a1)*v0]);
     
@@ -141,8 +141,8 @@ tol_diff = abs(ans_mat(:,1:end-1)-ans_mat(:,2:end));
 
 
 % HITTA DEN ANDRA LÖSNINGEN FÖR ALPHA:
-a0 = pi/4; % i förra uppgiften givna startvinkel, gav x =~ 18
-a1 = pi/3; % gissa lite annan vinkel
+a0 = pi/7; % i förra uppgiften givna startvinkel, gav x =~ 18
+a1 = pi/8; % gissa lite annan vinkel
 [t,x0] = trajectory_calculation(0.02,150,f,[0;h0;cos(a0)*v0;sin(a0)*v0]);
 [t,x1] = trajectory_calculation(0.02,150,f,[0;h0;cos(a1)*v0;sin(a1)*v0]);
 ai = a0;
