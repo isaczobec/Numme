@@ -9,25 +9,32 @@ f = @(r) g(r) .* r;
 % deklarera parametrar
 R = 3;
 ns = [30,60];
+V0 = g(R)*R^2*pi; 
 
 % beräkna volymerna
-V2h_trap = trapezoid_rule(f,ns(1),0,R)
-Vh_trap = trapezoid_rule(f,ns(2),0,R)
-V2h_simp = simpsons_rule(f,ns(1),0,R)
-Vh_simp = simpsons_rule(f,ns(2),0,R)
+V2h_trap = V0 - 2*pi*trapezoid_rule(f,ns(1),0,R)
+Vh_trap = V0 - 2*pi*trapezoid_rule(f,ns(2),0,R)
+V2h_simp = V0 - 2*pi*simpsons_rule(f,ns(1),0,R)
+Vh_simp = V0 - 2*pi*simpsons_rule(f,ns(2),0,R)
 
 % felet baserat på |Vh - V| <= |V2h - V|
 err_diff_trap = abs(V2h_trap-Vh_trap)
 err_diff_simp = abs(V2h_simp-Vh_simp)
 
-% beräkna vilket n som behövs
+% beräkna vilket n som behövs för trapetsmetoden respektive simpsons regel
 des_err = 0.5 * 10e-4;
 n_trap = 60;
 while err_diff_trap > des_err
-    err_diff_trap = abs(trapezoid_rule(f,n_trap,0,R)-trapezoid_rule(f,n_trap*2,0,R));
+    err_diff_trap = 2*pi*abs(trapezoid_rule(f,n_trap,0,R)-trapezoid_rule(f,n_trap*2,0,R));
     n_trap = n_trap*2;
 end
-disp(['took h = ',num2str(R/n_trap),' to reach error ',num2str(des_err)])
+disp(['trapezoid: took h = ',num2str(R/n_trap),' to reach error ',num2str(des_err)])
+n_simp = 60;
+while err_diff_simp > des_err
+    err_diff_simp = 2*pi*abs(simpsons_rule(f,n_simp,0,R)-simpsons_rule(f,n_simp*2,0,R));
+    n_simp = n_simp*2;
+end
+disp(['simpson: took h = ',num2str(R/n_simp),' to reach error ',num2str(des_err)])
 
 
 %% b)
@@ -46,15 +53,15 @@ Vol = trapezoid_rule_2d(f2d,-L/2,L/2,-L/2,L/2,30,30)
 % beräkna vilket n som behövs
 des_err = 0.5 * 10e-3;
 n_trap2d = 30;
-err_diff_trap = 999999; % välj godtyckligt stort tal till att börja med
-while err_diff_trap > des_err
-    err_diff_trap = abs( ...
+err_diff_simp = 999999; % välj godtyckligt stort tal till att börja med
+while err_diff_simp > des_err
+    err_diff_simp = abs( ...
         trapezoid_rule_2d(f2d,-L/2,L/2,-L/2,L/2,n_trap2d,n_trap2d) ...
         -trapezoid_rule_2d(f2d,-L/2,L/2,-L/2,L/2,n_trap2d*2,n_trap2d*2));
     n_trap2d = n_trap2d*2;
 end
 disp(['took h = ',num2str(L/n_trap2d),' to reach error ',num2str(des_err)])
-
+Vol_exact = trapezoid_rule_2d(f2d,-L/2,L/2,-L/2,L/2,n_trap2d,n_trap2d)
 
 %% c) I
 

@@ -12,7 +12,6 @@ ys = linspace(ay,by,n+1);
 
 vals_mat = f(xs_mat,ys_mat);
 
-
 center_mat = vals_mat(2:end-1,2:end-1); % included in 4 panels
 edge_mat1 = vals_mat(1,2:end-1); % included in 2 panels
 edge_mat2 = vals_mat(end,2:end-1);
