@@ -7,7 +7,10 @@ L=1.5;
 g=9.81;
 u=0.2;
 
-dydt = @(t,y) [y(2);-(u/m*y(2)+g/L*sin(y(1)))];
+dydt = @(t,y) [
+    y(2);
+    -((u/m)*y(2)+(g/L)*sin(y(1)))
+    ];
 
 O0 = 0.5;
 h = 0.025;
@@ -19,7 +22,7 @@ euler_at_5 = vals_euler(2,end);
 RK4_at_5 = vals_rk(2,end);
 
 disp(['RK: value at t=5: ',num2str(RK4_at_5)])
-disp(['Euler: value at t=5: ',num2str(RK4_at_5)])
+disp(['Euler: value at t=5: ',num2str(euler_at_5)])
 
 % plotta
 figure(1);
@@ -65,11 +68,14 @@ disp(['RK4 : took h = ',num2str(5/steps),' to reach error of ',num2str(des_err_R
 
 
 % beräkna precis referenslösning med h:et som krävdes för 10e-6 från förra
-% sektionen ()
-RK4_vals = RK4_system(dydt,[O0;0],0,5/(1310720),1310720);
-ans_at_5 = RK4_vals(2,end);
+% sektionen
 
-n = 17;
+req_steps = 1310720;
+
+RK4_vals = RK4_system(dydt,[O0;0],0,5/(req_steps),req_steps);
+ans_at_5 = RK4_vals(2,end)
+
+n = 17
 init_steps = 5;
 vec_ans = zeros(2,n);
 
@@ -88,3 +94,4 @@ upper = errs(1:end,1:end-1);
 lower = errs(1:end,2:end);
 ratios = upper./lower;
 approx_noggranhet = log2(ratios);
+% är 1 för euler, 4 för RK4 som förväntat!

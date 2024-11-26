@@ -1,0 +1,5 @@
+clearvars, clc;
+
+over = @(n,k) factorial(n) ./ (factorial(k).*factorial(n-k));
+
+0.2^2 * 0.8^3 * over(5,)

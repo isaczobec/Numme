@@ -12,19 +12,20 @@ end
 %   first row is t values, the following y1 through yn values.
 
 n = length(y0); % assume length of initial values vector is the size of the system
-func_points = zeros(n+1,steps); % preallocate arrays, one for time
+func_points = zeros(n+1,steps+1); % preallocate arrays, one for time
+func_points(1:end,1) = [t0;y0];
 
 yn = y0;
 tn = t0;
 
 for i = 1:steps
 
-    % add current t and y to vector
-    func_points(1:end,i) = [tn;yn];
-
     slope = dydt(tn,yn);
     yn = yn + slope * h;
     tn = tn + h;
+
+    % add current t and y to vector
+    func_points(1:end,i+1) = [tn;yn];
 end
 
 vals = func_points;
