@@ -35,9 +35,10 @@ legend('RK4','Euler')
 
 clc;
 
-des_err_euler = 10e-2 * 0.5;
-des_err_RK4 = 10e-6 * 0.5;
+des_err_euler = 10e-3 * 0.5; % ta lägre än 10e-2 för försäkra felet blir lagom litet
+des_err_RK4 = 10e-7 * 0.5; % ta lägre än 10e-6 för försäkra felet blir lagom litet
 
+safety_iterations = 3;
 
 euler_err = 99999;
 % hitta steps för euler och rk
@@ -49,6 +50,7 @@ while euler_err > des_err_euler
     euler_err = abs(h2_vals(2,end)-h_vals(2,end));
     steps = steps * 2;
 end
+euler_ans = h_vals(2,end)
 disp(['Euler: took h = ',num2str(5/steps),' to reach error of ',num2str(des_err_euler)])
 
 rk_err = 99999;
@@ -61,6 +63,7 @@ while rk_err > des_err_RK4
     rk_err = abs(h2_vals(2,end)-h_vals(2,end));
     steps = steps * 2;
 end
+RK4_ans = h_vals(2,end)
 disp(['RK4 : took h = ',num2str(5/steps),' to reach error of ',num2str(des_err_RK4)])
 
 
