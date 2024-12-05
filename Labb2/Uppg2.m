@@ -35,8 +35,8 @@ legend('RK4','Euler')
 
 clc;
 
-des_err_euler = 10e-3 * 0.5; % ta lägre än 10e-2 för försäkra felet blir lagom litet
-des_err_RK4 = 10e-7 * 0.5; % ta lägre än 10e-6 för försäkra felet blir lagom litet
+des_err_euler = 10^-3 * 0.5; % ta lägre än 10^-2 för försäkra felet blir lagom litet
+des_err_RK4 = 10^-7 * 0.5; % ta lägre än 10^-6 för försäkra felet blir lagom litet
 
 safety_iterations = 3;
 
@@ -70,7 +70,7 @@ disp(['RK4 : took h = ',num2str(5/steps),' to reach error of ',num2str(des_err_R
 %% b) II
 
 
-% beräkna precis referenslösning med h:et som krävdes för 10e-6 från förra
+% beräkna precis referenslösning med h:et som krävdes för 10e^6 från förra
 % sektionen
 
 req_steps = 1310720;

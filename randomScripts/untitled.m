@@ -2,9 +2,12 @@ clearvars, clc;
 
 over = @(n,k) factorial(n) ./ (factorial(k).*factorial(n-k));
 
-sum = 0;
-for i = 8:10
-    sum = sum + over(10,i) * (1/2)^10
-end
+x = [0 1 3];
+y = [1 2 3];
 
-sum
+A = [x',ones(3,1)]
+
+U = A'*A;
+Y = A'*y'
+
+a = U\Y

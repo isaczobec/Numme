@@ -22,19 +22,21 @@ err_diff_trap = abs(V2h_trap-Vh_trap)
 err_diff_simp = abs(V2h_simp-Vh_simp)
 
 % beräkna vilket n som behövs för trapetsmetoden respektive simpsons regel
-des_err = 0.5 * 10e-4;
-n_trap = 60;
-while err_diff_trap > des_err
-    err_diff_trap = 2*pi*abs(trapezoid_rule(f,n_trap,0,R)-trapezoid_rule(f,n_trap*2,0,R));
+des_err = 0.5 * 10^-4;
+n_trap = 1;
+err_diff_trap_test = 99999999999999;
+while err_diff_trap_test > des_err
+    err_diff_trap_test = 2*pi*abs(trapezoid_rule(f,n_trap,0,R)-trapezoid_rule(f,n_trap*2,0,R));
     n_trap = n_trap*2;
 end
-disp(['trapezoid: took h = ',num2str(R/n_trap),' to reach error ',num2str(des_err)])
-n_simp = 60;
-while err_diff_simp > des_err
-    err_diff_simp = 2*pi*abs(simpsons_rule(f,n_simp,0,R)-simpsons_rule(f,n_simp*2,0,R));
+disp(['trapezoid: took n = ',num2str(n_trap),' to reach error ',num2str(des_err)])
+n_simp = 1;
+err_diff_simp_test = 99999999999999;
+while err_diff_simp_test > des_err
+    err_diff_simp_test = 2*pi*abs(simpsons_rule(f,n_simp,0,R)-simpsons_rule(f,n_simp*2,0,R));
     n_simp = n_simp*2;
 end
-disp(['simpson: took h = ',num2str(R/n_simp),' to reach error ',num2str(des_err)])
+disp(['simpson: took n = ',num2str(n_simp),' to reach error ',num2str(des_err)])
 
 
 %% b)
@@ -48,10 +50,10 @@ f2d = @(x,y) g(R)-g(sqrt(x.^2+y.^2));
 % beräkna volymen
 Vol = trapezoid_rule_2d(f2d,-L/2,L/2,-L/2,L/2,30,30)
 
-% felet måste vara mindre än 0.5*10e-3 för tre korrekta decimaler
+% felet måste vara mindre än 0.5*10^-3 för tre korrekta decimaler
 
 % beräkna vilket n som behövs
-des_err = 0.5 * 10e-3;
+des_err = 0.5 * 10^-3;
 n_trap2d = 30;
 err_diff_simp = 999999; % välj godtyckligt stort tal till att börja med
 while err_diff_simp > des_err
@@ -84,15 +86,17 @@ for i = 1:len_ns
 end
 
 % beräkna h-värden
-hs1d = R./ns;
+hs1d_trap = R./ns;
+hs1d_simp = hs1d_trap/2; % hälften så stort h i simp
 hs2d = L./ns;
 
 figure(1);
 title(1,'Fel beroende av h')
 hold on;
-plot(hs1d,errs_vec(1,1:end)) % verkar ha noggranhetsordning 2
-plot(hs1d,errs_vec(2,1:end)) % verkar ha noggranhetsordning 3
-plot(hs2d,errs_vec(3,1:end)) % verkar ha noggranhetsordning 2
+grid on;
+loglog(hs1d_trap,errs_vec(1,1:end)) % verkar ha noggranhetsordning 2
+loglog(hs1d_simp,errs_vec(2,1:end)) % verkar ha noggranhetsordning 4
+loglog(hs2d,errs_vec(3,1:end)) % verkar ha noggranhetsordning 2
 legend('trapezoidregeln','simpsons regel','trapezoidregeln-2D')
 
 %% c) II
@@ -101,7 +105,7 @@ clc;
 
 % fyll en vektor med fel
 
-hs = 2.^(0:10) * 10e-4; % dubbla steglängd varje gång
+hs = 2.^(0:6) * 10^-3; % dubbla steglängd varje gång
 
 % fyll vektor med volymer för dubbblande steglängder varje gång
 ns1d = round(R./hs);
@@ -120,4 +124,4 @@ offset_vols3 = vols_vec(1:end,1:end-2);
 
 ratios = (offset_vols1-offset_vols2)./(offset_vols2-offset_vols3);
 approx_noggranhets = log2(ratios); 
-% ger trapetsregeln noggranhetsordning 2, simpsons 4
+% ger trapetsregeln i 1d/2d noggranhetsordning 2, simpsons 4

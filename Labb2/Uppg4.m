@@ -40,8 +40,8 @@ function [trajectory,...
     [spline_func,cs] = polynomial_interpolation(trajectory(2,ground_indicies),trajectory(3,ground_indicies));
     spline_func_der = @(x) sum((1:length(cs)-1) .* cs(2:end) .* x.^(0:(length(cs)-2)));
     % hitta punkt s.a y = 0 m. newtons metod
-    hit_x = newtons_method(spline_func,trajectory(2,ground_index),100,spline_func_der,10e-10);
-    % hit_x = bisection_method(spline_func,trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),10e-10,1000);
+    hit_x = newtons_method(spline_func,trajectory(2,ground_index),100,spline_func_der,10^-10);
+    % hit_x = bisection_method(spline_func,trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),10^-10,1000);
 
 end
 
@@ -53,7 +53,7 @@ max_iters = 10;
 ans_vec = zeros(1,max_iters+1);
 ans_vec(1) = 99999999999;
 err_diff = 999999; % godtyckligt hög
-max_err = 10e-6;
+max_err = 10^-6;
 for i = 2:max_iters+1
     [trajectory,hit_x,ground_indicies,spline_func,spline_func_der] = trajectory_calculation(h,steps,f,y0);
     ans_vec(i) = hit_x;
@@ -88,8 +88,8 @@ clc;
 h = 0.16;
 tolerance = 0.1;
 
-h_steps = 10
-tol_steps = 10
+h_steps = 10;
+tol_steps = 10;
 
 ans_mat = zeros(h_steps,tol_steps);
 
@@ -174,6 +174,7 @@ hold on;
 plot(traj_1(2,1:end),traj_1(3,1:end));
 plot(traj_2(2,1:end),traj_2(3,1:end));
 plot([0,20],[0,0]);
+legend('trajectory 1','trajectory 2')
 
 %% c)
 clc;
@@ -185,15 +186,17 @@ function err = traj_error(a,a_err,v0_err,f,h0,v0)
 end
 
 % för höga kastet:
-high_a_max_err = max([traj_error(root_a_1,1.05,1,f,h0,v0)...
-                      traj_error(root_a_1,0.95,1,f,h0,v0)]);
-high_v0_max_err = max([traj_error(root_a_1,1,1.05,f,h0,v0)...
-                       traj_error(root_a_1,1,0.95,f,h0,v0)]);
-max_err_high = max([high_a_max_err + high_v0_max_err,traj_error(root_a_1,1.05,1.05,f,h0,v0),traj_error(root_a_1,0.95,0.95,f,h0,v0)])
+high_a_max_err = max([traj_error(root_a_2,1.05,1,f,h0,v0)...
+                      traj_error(root_a_2,0.95,1,f,h0,v0)]);
+high_v0_max_err = max([traj_error(root_a_2,1,1.05,f,h0,v0)...
+                       traj_error(root_a_2,1,0.95,f,h0,v0)]);
+max_err_high = max([high_a_max_err + high_v0_max_err,traj_error(root_a_2,1.05,1.05,f,h0,v0),traj_error(root_a_2,0.95,0.95,f,h0,v0)])
 
 % för låga kastet:
-low_a_max_err = max([traj_error(root_a_2,1.05,1,f,h0,v0)...
-                      traj_error(root_a_2,0.95,1,f,h0,v0)]);
-low_v0_max_err = max([traj_error(root_a_2,1,1.05,f,h0,v0)...
-                       traj_error(root_a_2,1,0.95,f,h0,v0)]);
-max_err_low = max([low_a_max_err + low_v0_max_err,traj_error(root_a_2,1.05,1.05,f,h0,v0),traj_error(root_a_2,0.95,0.95,f,h0,v0)])
+low_a_max_err = max([traj_error(root_a_1,1.05,1,f,h0,v0)...
+                      traj_error(root_a_1,0.95,1,f,h0,v0)]);
+low_v0_max_err = max([traj_error(root_a_1,1,1.05,f,h0,v0)...
+                       traj_error(root_a_1,1,0.95,f,h0,v0)]);
+max_err_low = max([low_a_max_err + low_v0_max_err,traj_error(root_a_1,1.05,1.05,f,h0,v0),traj_error(root_a_1,0.95,0.95,f,h0,v0)])
+
+% det låga har lägre fel!
