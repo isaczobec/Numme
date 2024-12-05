@@ -11,7 +11,7 @@ m = 0.75;
 
 % y(1) är x-pos, y(2) är y-pos, y(3) är x-hast, y(4) är y-hast
 % skriv upp systemet:
-f = @(t,y) [...
+f = @(t,y) [...    
     y(3);...
     y(4);...
     -(k1*y(3))*sqrt(y(4).^2+y(3).^2)/m;...
@@ -73,7 +73,7 @@ hit_x
 figure(1);
 title(1,'Trajectory over time')
 hold on;
-plot(trajectory(2,1:end),trajectory(3,1:end));
+plot(trajectory(2,1:end),trajectory(3,1:end),'.');
 plot([0,25],[0,0]);
 plot(linspace(trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),100),...
     spline_func(linspace(trajectory(2,ground_indicies(1)),trajectory(2,ground_indicies(end)),100)))
@@ -200,3 +200,7 @@ low_v0_max_err = max([traj_error(root_a_1,1,1.05,f,h0,v0)...
 max_err_low = max([low_a_max_err + low_v0_max_err,traj_error(root_a_1,1.05,1.05,f,h0,v0),traj_error(root_a_1,0.95,0.95,f,h0,v0)])
 
 % det låga har lägre fel!
+
+
+
+
